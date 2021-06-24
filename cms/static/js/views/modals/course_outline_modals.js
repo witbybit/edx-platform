@@ -404,18 +404,40 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
             return parseInt(this.$('#due_in').val());
         },
 
+        showProjectedDate: function() {
+            var startDate = DateUtils.parseDateFromString(this.model.get('start'))
+            this.$("#due_num_weeks_start_date").text(gettext(startDate.toDateString()));
+            var projectedDate = new Date(startDate)
+            projectedDate.setDate(projectedDate.getDate() + this.getValue()*7);
+            this.$("#due_num_weeks_projected_due_in").text(gettext(projectedDate.toDateString()));
+            if (startDate <= projectedDate) {
+                this.$('#due_num_weeks_projected').show();
+            }
+        },
+
         validateDueIn: function() {
             if (this.getValue() > 18){
-                this.$('#due-num-weeks-warning-max').show();
+                this.$('#due_num_weeks_warning_max').show();
+                this.$('#due_num_weeks_projected').hide();
                 BaseModal.prototype.disableActionButton.call(this.parent, 'save');
             }
             else if (this.getValue() < 1){
-                this.$('#due-num-weeks-warning-min').show()
+                this.$('#due_num_weeks_warning_min').show()
+                this.$('#due_num_weeks_projected').hide();
                 BaseModal.prototype.disableActionButton.call(this.parent, 'save');
             }
+            else if (!this.getValue()){
+                this.$('#due_num_weeks_warning_max').hide();
+                this.$('#due_num_weeks_warning_min').hide();
+                this.$('#due_num_weeks_projected').hide();
+            }
             else {
-                this.$('#due-num-weeks-warning-max').hide();
-                this.$('#due-num-weeks-warning-min').hide();
+                this.$('#due_num_weeks_warning_max').hide();
+                this.$('#due_num_weeks_warning_min').hide();
+                this.$('#due_num_weeks_projected').hide();
+                if (this.model.get('start')){
+                    this.showProjectedDate();
+                }
                 BaseModal.prototype.enableActionButton.call(this.parent, 'save');
             }
         },
@@ -423,11 +445,19 @@ define(['jquery', 'backbone', 'underscore', 'gettext', 'js/views/baseview',
         clearValue: function(event) {
             event.preventDefault();
             this.$('#due_in').val('');
+            this.$('#due_num_weeks_warning_max').hide();
+            this.$('#due_num_weeks_warning_min').hide();
+            this.$('#due_num_weeks_projected').hide();
         },
 
         afterRender: function() {
             AbstractEditor.prototype.afterRender.call(this);
             this.$('.field-due-in input').val(this.model.get('due_num_weeks'));
+            this.$('#due_num_weeks_projected').hide();
+
+            if (this.getValue() && this.model.get('start')){
+                this.showProjectedDate();
+            }
         },
 
         getRequestData: function() {

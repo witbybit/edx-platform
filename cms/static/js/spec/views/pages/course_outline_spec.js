@@ -2149,6 +2149,7 @@ describe('CourseOutlinePage', function() {
                 createMockSubsectionJSON({
                     graded: true,
                     due_num_weeks: 3,
+                    start: '2014-07-09T00:00:00Z',
                     format: 'Lab',
                     has_explicit_staff_lock: true,
                     staff_only_message: true,
@@ -2200,6 +2201,10 @@ describe('CourseOutlinePage', function() {
                 AjaxHelpers.respondWithJson(requests, mockCustomPacingServerValuesJson);
                 AjaxHelpers.expectNoRequests(requests);
 
+                expect($('.outline-subsection .status-grading-date')).toContainText(
+                    'Due in: 3 weeks'
+                );
+
                 expect($('.outline-subsection .status-grading-value')).toContainText(
                     'Lab'
                 );
@@ -2211,6 +2216,7 @@ describe('CourseOutlinePage', function() {
                 outlinePage.$('.outline-item .outline-subsection .configure-button').click();
                 expect($('#due_in').val()).toBe('3');
                 expect($('#grading_type').val()).toBe('Lab');
+                expect($('#projected.message').css('display')).not.toBe('none');
                 expect($('input[name=content-visibility][value=staff_only]').is(':checked')).toBe(true);
                 expect($('input.timed_exam').is(':checked')).toBe(false);
                 expect($('input.proctored_exam').is(':checked')).toBe(false);
@@ -2253,6 +2259,10 @@ describe('CourseOutlinePage', function() {
                 // This is the response for the subsequent fetch operation.
                 AjaxHelpers.respondWithJson(requests, mockCustomPacingServerValuesJson);
 
+                expect($('.outline-subsection .status-grading-date')).toContainText(
+                    'Due in: 3 weeks'
+                );
+
                 expect($('.outline-subsection .status-grading-value')).toContainText(
                     'Lab'
                 );
@@ -2264,6 +2274,7 @@ describe('CourseOutlinePage', function() {
                 expect($('#due_in').val()).toBe('3');
                 expect($('#grading_type').val()).toBe('Lab');
                 expect($('input[name=content-visibility][value=staff_only]').is(':checked')).toBe(true);
+                expect($('#projected.message').css('display')).not.toBe('none');
 
                 $('.wrapper-modal-window .due-date-input .action-clear').click();
                 expect($('#due_in').val()).toBe('');
@@ -2280,6 +2291,7 @@ describe('CourseOutlinePage', function() {
                     createMockSectionJSON({}, [createMockSubsectionJSON()])
                 );
 
+                expect($('.outline-subsection .status-grading-date')).not.toExist();
                 expect($('.outline-subsection .status-grading-value')).not.toExist();
                 expect($('.outline-subsection .status-message-copy')).not.toContainText(
                     'Contains staff only content'
